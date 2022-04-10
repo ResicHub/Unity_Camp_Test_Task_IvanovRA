@@ -14,7 +14,7 @@ public class CurveGenerator : MonoBehaviour
     [SerializeField]
     private LineRenderer lineRenderer;
 
-    private UnityEvent GenerationDone = new UnityEvent();
+    private UnityEvent GenerationIsComplete = new UnityEvent();
 
     private float[] xBorders = new float[2] // Curve zone borders by X-coordinate
     { 
@@ -28,7 +28,7 @@ public class CurveGenerator : MonoBehaviour
 
     private void Start()
     {
-        GenerationDone.AddListener(ArrowController.Instance.GetReady);
+        GenerationIsComplete.AddListener(ArrowController.Instance.GetReady);
     }
 
     [ContextMenu("Start generation")]
@@ -41,7 +41,7 @@ public class CurveGenerator : MonoBehaviour
             {
                 lineRenderer.SetPosition(i, GetRandomVertex());
             }
-            GenerationDone.Invoke();
+            GenerationIsComplete.Invoke();
         }
         else
         {

@@ -12,8 +12,11 @@ public class ArrowController : MonoBehaviour
 
     private Transform myTransform;
 
+    /// <summary>
+    /// Renderer of path line.
+    /// </summary>
     [SerializeField]
-    private LineRenderer lineRenderer;
+    public LineRenderer MyLineRenderer;
 
     private bool isMoving = false;
 
@@ -49,7 +52,7 @@ public class ArrowController : MonoBehaviour
     /// </summary>
     public void GetReady()
     {
-        myTransform.position = lineRenderer.GetPosition(0);
+        myTransform.position = MyLineRenderer.GetPosition(0);
         nextPointIndex = 0;
         ResetNextPoint();
         RotateToNextPoint();
@@ -69,9 +72,9 @@ public class ArrowController : MonoBehaviour
     private void ResetNextPoint()
     {
         nextPointIndex++;
-        if (nextPointIndex < lineRenderer.positionCount)
+        if (nextPointIndex < MyLineRenderer.positionCount)
         {
-            nextPoint = lineRenderer.GetPosition(nextPointIndex);
+            nextPoint = MyLineRenderer.GetPosition(nextPointIndex);
             RotateToNextPoint();
         }
         else
