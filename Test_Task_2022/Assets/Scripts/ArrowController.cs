@@ -5,6 +5,11 @@ using UnityEngine;
 /// </summary>
 public class ArrowController : MonoBehaviour
 {
+    /// <summary>
+    /// An object instance implemented with a singleton.
+    /// </summary>
+    public static ArrowController Instance = null;
+
     private Transform myTransform;
 
     [SerializeField]
@@ -18,6 +23,10 @@ public class ArrowController : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
         myTransform = GetComponent<Transform>();
         GetReady();
     }
@@ -35,12 +44,19 @@ public class ArrowController : MonoBehaviour
         }
     }
 
-    private void GetReady()
+    /// <summary>
+    /// A method for setting the arrow to the start of the path.
+    /// </summary>
+    public void GetReady()
     {
         myTransform.position = lineRenderer.GetPosition(0);
         nextPointIndex = 0;
         ResetNextPoint();
         RotateToNextPoint();
+        if (isMoving)
+        {
+            isMoving = false;
+        }
     }
 
     private void RotateToNextPoint()
