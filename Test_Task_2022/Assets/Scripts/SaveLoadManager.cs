@@ -52,6 +52,8 @@ public class SaveLoadManager : MonoBehaviour
         }
 
         configFile.Loop = lineRenderer.loop;
+        configFile.MovementSpeed = ArrowController.Instance.MovementSpeed;
+        configFile.PassageTime = ArrowController.Instance.PassageTime;
 
         string json = JsonUtility.ToJson(configFile);
 
@@ -67,7 +69,7 @@ public class SaveLoadManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Loading path data from config file and creating curve..
+    /// Loading path data from config file and creating curve.
     /// </summary>
     [ContextMenu("Loading data")]
     public void Load()
@@ -90,6 +92,8 @@ public class SaveLoadManager : MonoBehaviour
         }
 
         ArrowController.Instance.MyLineRenderer.loop = configFileFromJson.Loop;
+        ArrowController.Instance.MovementSpeed = configFileFromJson.MovementSpeed;
+        ArrowController.Instance.PassageTime = configFileFromJson.PassageTime;
 
         LoadingIsComplete.Invoke();
         Debug.Log("Data loading completed successfully.");
@@ -111,6 +115,16 @@ public struct ConfigFileStruct
     /// Parameter for looping the path.
     /// </summary>
     public bool Loop;
+
+    /// <summary>
+    /// Arrow's movement speed.
+    /// </summary>
+    public float MovementSpeed;
+
+    /// <summary>
+    /// The time to takes the arrow to pass the entire path with certain movement speed.
+    /// </summary>
+    public float PassageTime;
 }
 
 /// <summary>

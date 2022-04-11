@@ -16,12 +16,12 @@ public class CurveGenerator : MonoBehaviour
 
     private UnityEvent GenerationIsComplete = new UnityEvent();
 
-    private float[] xBorders = new float[2] // Curve zone borders by X-coordinate
+    private float[] xBorders = new float[2] // Curve zone borders by X-coordinate.
     { 
         -6f, 6f 
     };
 
-    private float[] yBorders = new float[2] // Curve zone borders by Y-coordinate
+    private float[] yBorders = new float[2] // Curve zone borders by Y-coordinate.
     {
         -4f, 4f
     };
@@ -31,6 +31,9 @@ public class CurveGenerator : MonoBehaviour
         GenerationIsComplete.AddListener(ArrowController.Instance.GetReady);
     }
 
+    /// <summary>
+    /// Generate the new curve.
+    /// </summary>
     [ContextMenu("Start generation")]
     private void Generate()
     {
@@ -49,6 +52,9 @@ public class CurveGenerator : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Returns random vertex of curve in certain area.
+    /// </summary>
     private Vector3 GetRandomVertex()
     {
         float x = Random.Range(xBorders[0], xBorders[1]);
