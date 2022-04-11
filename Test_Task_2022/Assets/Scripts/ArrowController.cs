@@ -55,14 +55,14 @@ public class ArrowController : MonoBehaviour
         myTransform.position = MyLineRenderer.GetPosition(0);
         nextPointIndex = 0;
         ResetNextPoint();
-        RotateToNextPoint();
+        RotateTo(nextPointIndex);
         if (isMoving)
         {
             isMoving = false;
         }
     }
 
-    private void RotateToNextPoint()
+    private void RotateTo(int pointIndex)
     {
         Vector3 direction = nextPoint - myTransform.position;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
@@ -75,11 +75,19 @@ public class ArrowController : MonoBehaviour
         if (nextPointIndex < MyLineRenderer.positionCount)
         {
             nextPoint = MyLineRenderer.GetPosition(nextPointIndex);
-            RotateToNextPoint();
+            RotateTo(nextPointIndex);
         }
         else
         {
-            isMoving = false;
+            if (nextPointIndex == MyLineRenderer.positionCount && MyLineRenderer.loop)
+            {
+                nextPoint = MyLineRenderer.GetPosition(0);
+                RotateTo(0);
+            }
+            else
+            {
+                isMoving = false;
+            }
         }
     }
 

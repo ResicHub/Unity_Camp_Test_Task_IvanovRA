@@ -40,15 +40,18 @@ public class SaveLoadManager : MonoBehaviour
     {
         ConfigFileStruct configFile = new ConfigFileStruct()
         {
-            points = new List<Point>()
+            Points = new List<Point>(),
+            Loop = false
         };
 
         LineRenderer lineRenderer = ArrowController.Instance.MyLineRenderer;
         for (int i = 0; i < lineRenderer.positionCount; i++)
         {
             Vector3 vertex = lineRenderer.GetPosition(i);
-            configFile.points.Add(new Point(vertex.x, vertex.y));
+            configFile.Points.Add(new Point(vertex.x, vertex.y));
         }
+
+        configFile.Loop = lineRenderer.loop;
 
         string json = JsonUtility.ToJson(configFile);
 
@@ -78,13 +81,16 @@ public class SaveLoadManager : MonoBehaviour
         string json = File.ReadAllText(pathFile);
         ConfigFileStruct configFileFromJson = JsonUtility.FromJson<ConfigFileStruct>(json);
 
-        int pointCount = configFileFromJson.points.Count;
+        int pointCount = configFileFromJson.Points.Count;
         ArrowController.Instance.MyLineRenderer.positionCount = pointCount;
         for (int i = 0; i < pointCount; i++)
         {
-            Point point = configFileFromJson.points[i];
+            Point point = configFileFromJson.Points[i];
             ArrowController.Instance.MyLineRenderer.SetPosition(i, new Vector3(point.X, point.Y, 0));
         }
+
+        ArrowController.Instance.MyLineRenderer.loop = configFileFromJson.Loop;
+
         LoadingIsComplete.Invoke();
         Debug.Log("Data loading completed successfully.");
     }
@@ -99,7 +105,12 @@ public struct ConfigFileStruct
     /// <summary>
     /// Points of path.
     /// </summary>
-    public List<Point> points; 
+    public List<Point> Points;
+
+    /// <summary>
+    /// Parameter for looping the path.
+    /// </summary>
+    public bool Loop;
 }
 
 /// <summary>
