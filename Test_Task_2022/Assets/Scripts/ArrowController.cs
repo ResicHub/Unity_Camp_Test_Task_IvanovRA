@@ -20,6 +20,13 @@ public class ArrowController : MonoBehaviour
 
     private bool isMoving = false;
 
+    [SerializeField]
+    [Range(1f, 10f)]
+    private float movingSpeed = 1f;
+
+    [SerializeField]
+    private float passageTime = 0f;
+
     private int nextPointIndex;
 
     private Vector3 nextPoint;
@@ -56,6 +63,8 @@ public class ArrowController : MonoBehaviour
         nextPointIndex = 0;
         ResetNextPoint();
         RotateTo(nextPointIndex);
+        CalculatePassageTime();
+
         if (isMoving)
         {
             isMoving = false;
@@ -93,13 +102,38 @@ public class ArrowController : MonoBehaviour
 
     private void Move()
     {
-        if ((nextPoint - myTransform.position).magnitude > 0.01f)
+        Vector3 movingStep = myTransform.right * Time.deltaTime * movingSpeed;
+        Vector3 stepToNextPoint = nextPoint - myTransform.position;
+        if (stepToNextPoint.magnitude > movingStep.magnitude)
         {
-            myTransform.position = myTransform.position + myTransform.right * Time.deltaTime;
+            myTransform.position += movingStep;
         }
         else
         {
+            myTransform.position += stepToNextPoint;
             ResetNextPoint();
+            if (isMoving)
+            {
+                myTransform.position += myTransform.right * (movingStep - stepToNextPoint).magnitude;
+            }
         }
+    }
+
+    private void CalculatePassageTime()
+    {
+        float pTime = 0f;
+        for (int i = 0; i < MyLineRenderer.positionCount - 1; i++)
+        {
+            pTime += (MyLineRenderer.GetPosition(i + 1) 
+                - MyLineRenderer.GetPosition(i)).magnitude; 
+        }
+
+        if (MyLineRenderer.loop)
+        {
+            pTime += (MyLineRenderer.GetPosition(MyLineRenderer.positionCount-1) 
+                - MyLineRenderer.GetPosition(0)).magnitude;
+        }
+
+        passageTime = pTime / movingSpeed;
     }
 }
