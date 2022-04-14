@@ -56,7 +56,7 @@ public class ArrowController : MonoBehaviour
     private void Update()
     {
         // If Space button was pressed and arrow is not moving now -> arrow starts moving.
-        if (Input.GetKeyDown(KeyCode.Space) && !isMoving)
+        if (Input.GetKeyDown(KeyCode.S) && !isMoving)
         {
             GetReady();
             isMoving = true;
