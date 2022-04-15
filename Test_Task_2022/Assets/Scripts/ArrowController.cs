@@ -8,7 +8,7 @@ public class ArrowController : MonoBehaviour
     /// <summary>
     /// An object instance implemented with a singleton.
     /// </summary>
-    public static ArrowController Instance = null;
+    public static ArrowController Instance;
 
     private Transform myTransform;
 
@@ -16,7 +16,7 @@ public class ArrowController : MonoBehaviour
     /// Renderer of path line.
     /// </summary>
     [SerializeField]
-    public LineRenderer MyLineRenderer;
+    private LineRenderer lineRenderer;
 
     private bool isMoving = false;
 
@@ -27,15 +27,14 @@ public class ArrowController : MonoBehaviour
     [Range(1f, 10f)]
     public float MovementSpeed = 1f;
 
-    private float oldMovementSpeed; // That parameter helps updating PassageTime in real time when movement speed has changed.
+    // That parameter helps updating PassageTime in real time when movement speed has changed.
+    private float oldMovementSpeed;
 
     /// <summary>
     /// The time it takes for the arrow to pass the entire path with certain movement speed.
     /// </summary>
     [SerializeField]
     public float PassageTime = 0f;
-
-    private bool islooped; // That parameter helps updating PassageTime in real time when loop has changed.
 
     private int nextPointIndex;
 
@@ -50,7 +49,6 @@ public class ArrowController : MonoBehaviour
 
         myTransform = GetComponent<Transform>();
         oldMovementSpeed = MovementSpeed;
-        islooped = MyLineRenderer.loop;
     }
 
     private void Update()
@@ -61,9 +59,9 @@ public class ArrowController : MonoBehaviour
             GetReady();
             isMoving = true;
         }
-        if (isMoving)
+        else if (Input.GetKeyDown(KeyCode.R))
         {
-            Move();
+            GetReady();
         }
 
         // If movement speed has changed -> calculating new PassageTime.
@@ -72,12 +70,13 @@ public class ArrowController : MonoBehaviour
             oldMovementSpeed = MovementSpeed;
             CalculatePassageTime();
         }
+    }
 
-        // If loop parameter has changed -> calculating new PassageTime.
-        if (islooped != MyLineRenderer.loop)
+    private void FixedUpdate()
+    {
+        if (isMoving)
         {
-            islooped = MyLineRenderer.loop;
-            CalculatePassageTime();
+            Move();
         }
     }
 
@@ -86,7 +85,7 @@ public class ArrowController : MonoBehaviour
     /// </summary>
     public void GetReady()
     {
-        myTransform.position = MyLineRenderer.GetPosition(0);
+        myTransform.position = lineRenderer.GetPosition(0);
         nextPointIndex = 0;
         ResetNextPoint();
         RotateTo(nextPointIndex);
@@ -116,17 +115,17 @@ public class ArrowController : MonoBehaviour
     {
         nextPointIndex++;
         // If present point was not the ending -> setting next point.
-        if (nextPointIndex < MyLineRenderer.positionCount)
+        if (nextPointIndex < lineRenderer.positionCount)
         {
-            nextPoint = MyLineRenderer.GetPosition(nextPointIndex);
+            nextPoint = lineRenderer.GetPosition(nextPointIndex);
             RotateTo(nextPointIndex);
         }
         else
         {
             // If present point is ending and curve is looped -> setting first point of curve as next point.
-            if (nextPointIndex == MyLineRenderer.positionCount && MyLineRenderer.loop)
+            if (nextPointIndex == lineRenderer.positionCount && lineRenderer.loop)
             {
-                nextPoint = MyLineRenderer.GetPosition(0);
+                nextPoint = lineRenderer.GetPosition(0);
                 RotateTo(0);
             }
             // Else present point is the end of curve -> movement stops.
@@ -154,7 +153,9 @@ public class ArrowController : MonoBehaviour
         else
         {
             myTransform.position += stepToNextPoint;
-            ResetNextPoint(); // That command will stop arrow's moving if achived point is the ening.
+
+            // That command will stop arrow's moving if achived point is the ening.
+            ResetNextPoint(); 
             if (isMoving)
             {
                 myTransform.position += myTransform.right * (movingStep - stepToNextPoint).magnitude;
@@ -168,18 +169,12 @@ public class ArrowController : MonoBehaviour
     private void CalculatePassageTime()
     {
         float pTime = 0f;
-        for (int i = 0; i < MyLineRenderer.positionCount - 1; i++)
+        // Calculate the sum of each curve segment.
+        for (int pointIndex = 0; pointIndex < lineRenderer.positionCount - 1; pointIndex++)
         {
-            pTime += (MyLineRenderer.GetPosition(i + 1) 
-                - MyLineRenderer.GetPosition(i))
+            pTime += (lineRenderer.GetPosition(pointIndex + 1) 
+                - lineRenderer.GetPosition(pointIndex))
                 .magnitude; 
-        }
-
-        if (MyLineRenderer.loop)
-        {
-            pTime += (MyLineRenderer.GetPosition(MyLineRenderer.positionCount-1) 
-                - MyLineRenderer.GetPosition(0))
-                .magnitude;
         }
 
         PassageTime = pTime / MovementSpeed;

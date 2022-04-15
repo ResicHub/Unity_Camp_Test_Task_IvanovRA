@@ -350,8 +350,9 @@ MonoBehaviour:
   lineRenderer: {fileID: 1698529993}
   anchorPointPrefab: {fileID: 718499527117891377, guid: e1cf561d491bb454da1a795b5b695d1e, type: 3}
   groupOfAnchors: {fileID: 1446329713}
-  anchorsCount: 5
-  loop: 0
+  AnchorsCount: 5
+  Loop: 0
+  Anchors: []
 --- !u!4 &961060708
 Transform:
   m_ObjectHideFlags: 0
@@ -583,8 +584,8 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 1
-    numCapVertices: 1
+    numCornerVertices: 5
+    numCapVertices: 5
     alignment: 0
     textureMode: 0
     shadowBias: 0.5

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// Stores methods to saveing and loading path data.
+/// Stores methods to saveing and loading curve data.
 /// </summary>
 public class SaveLoadManager : MonoBehaviour
 {
@@ -13,7 +13,7 @@ public class SaveLoadManager : MonoBehaviour
     /// </summary>
     public static SaveLoadManager Instance = null;
 
-    private string pathFile;
+    private string filePath;
 
     private UnityEvent LoadingIsComplete = new UnityEvent();
 
@@ -24,16 +24,16 @@ public class SaveLoadManager : MonoBehaviour
             Instance = this;
         }
 
-        pathFile = Application.dataPath + "/data.json";
+        filePath = Application.dataPath + "/data.json";
     }
-
+    
     private void Start()
     {
-        LoadingIsComplete.AddListener(ArrowController.Instance.GetReady);
+        LoadingIsComplete.AddListener(CurveGenerator.Instance.CreateCurve);
     }
 
     /// <summary>
-    /// Creating config file with path data and saving it on device.
+    /// Creating config file with curve data and saving it on device.
     /// </summary>
     [ContextMenu("Saving data")]
     public void Save()
@@ -44,14 +44,14 @@ public class SaveLoadManager : MonoBehaviour
             Loop = false
         };
 
-        LineRenderer lineRenderer = ArrowController.Instance.MyLineRenderer;
-        for (int i = 0; i < lineRenderer.positionCount; i++)
+        List<Vector3> anchors = CurveGenerator.Instance.Anchors;
+        for (int i = 0; i < anchors.Count; i++)
         {
-            Vector3 vertex = lineRenderer.GetPosition(i);
+            Vector3 vertex = anchors[i];
             configFile.Points.Add(new Point(vertex.x, vertex.y));
         }
 
-        configFile.Loop = lineRenderer.loop;
+        configFile.Loop = CurveGenerator.Instance.Loop;
         configFile.MovementSpeed = ArrowController.Instance.MovementSpeed;
         configFile.PassageTime = ArrowController.Instance.PassageTime;
 
@@ -59,7 +59,7 @@ public class SaveLoadManager : MonoBehaviour
 
         try
         {
-            File.WriteAllText(pathFile, json);
+            File.WriteAllText(filePath, json);
             Debug.Log("Data saving completed successfully.");
         }
         catch
@@ -69,29 +69,30 @@ public class SaveLoadManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Loading path data from config file and creating curve.
+    /// Loading data from config file and creating curve.
     /// </summary>
     [ContextMenu("Loading data")]
     public void Load()
     {
-        if (!File.Exists(pathFile))
+        if (!File.Exists(filePath))
         {
-            Debug.LogError("Data loading failed.");
+            Debug.LogError("Data loading failed. Configuration file does not exist.");
             return;
         }
 
-        string json = File.ReadAllText(pathFile);
+        string json = File.ReadAllText(filePath);
         ConfigFileStruct configFileFromJson = JsonUtility.FromJson<ConfigFileStruct>(json);
 
-        int pointCount = configFileFromJson.Points.Count;
-        ArrowController.Instance.MyLineRenderer.positionCount = pointCount;
-        for (int i = 0; i < pointCount; i++)
+        int pointsCount = configFileFromJson.Points.Count;
+        CurveGenerator.Instance.CleanOldCurve();
+        CurveGenerator.Instance.AnchorsCount = pointsCount;
+        for (int i = 0; i < pointsCount; i++)
         {
             Point point = configFileFromJson.Points[i];
-            ArrowController.Instance.MyLineRenderer.SetPosition(i, new Vector3(point.X, point.Y, 0));
+            CurveGenerator.Instance.Anchors.Add(new Vector3(point.X, point.Y, 0));
         }
 
-        ArrowController.Instance.MyLineRenderer.loop = configFileFromJson.Loop;
+        CurveGenerator.Instance.Loop = configFileFromJson.Loop;
         ArrowController.Instance.MovementSpeed = configFileFromJson.MovementSpeed;
         ArrowController.Instance.PassageTime = configFileFromJson.PassageTime;
 
@@ -107,12 +108,12 @@ public class SaveLoadManager : MonoBehaviour
 public struct ConfigFileStruct
 {
     /// <summary>
-    /// Points of path.
+    /// Points of curve.
     /// </summary>
     public List<Point> Points;
 
     /// <summary>
-    /// Parameter for looping the path.
+    /// Parameter for looping the curve.
     /// </summary>
     public bool Loop;
 
@@ -122,27 +123,17 @@ public struct ConfigFileStruct
     public float MovementSpeed;
 
     /// <summary>
-    /// The time to takes the arrow to pass the entire path with certain movement speed.
+    /// The time to takes the arrow to pass the entire curve with certain movement speed.
     /// </summary>
     public float PassageTime;
 }
 
 /// <summary>
-/// Serializable struct for storing points coordinates.
+/// Serializable struct for storing coordinates of anchors.
 /// </summary>
 [System.Serializable]
 public struct Point
 {
-    /// <summary>
-    /// X-coordinate of point.
-    /// </summary>
-    public float X;
-
-    /// <summary>
-    /// Y-coordinate of point.
-    /// </summary>
-    public float Y;
-
     /// <summary>
     /// Constructor of path point.
     /// </summary>
@@ -153,4 +144,14 @@ public struct Point
         X = xCord;
         Y = yCord;
     }
+
+    /// <summary>
+    /// X-coordinate of point.
+    /// </summary>
+    public float X;
+
+    /// <summary>
+    /// Y-coordinate of point.
+    /// </summary>
+    public float Y;
 }

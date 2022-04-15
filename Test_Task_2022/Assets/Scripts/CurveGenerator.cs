@@ -10,7 +10,7 @@ public class CurveGenerator : MonoBehaviour
     /// <summary>
     /// An object instance implemented with a singleton.
     /// </summary>
-    public static CurveGenerator Instance = null;
+    public static CurveGenerator Instance;
 
     [SerializeField]
     private LineRenderer lineRenderer;
@@ -23,21 +23,31 @@ public class CurveGenerator : MonoBehaviour
 
     [SerializeField]
     [Range(3, 10)]
-    private int anchorsCount = 5;
+    public int AnchorsCount = 5;
 
+    /// <summary>
+    /// Looping of curve.
+    /// </summary>
     [SerializeField]
-    private bool loop;
+    public bool Loop;
 
-    private List<Vector3> anchors = new List<Vector3>();
+    /// <summary>
+    /// Anchor points of curve.
+    /// </summary>
+    public List<Vector3> Anchors = new List<Vector3>();
 
-    private Dictionary<Vector3, List<Vector3>> controlPoints = new Dictionary<Vector3, List<Vector3>>();
+    // Needed for crearing Bezier curve.
+    private Dictionary<Vector3, List<Vector3>> controlPoints = 
+        new Dictionary<Vector3, List<Vector3>>();
 
-    private float[] xBorders = new float[2] // Curve zone borders by X-coordinate.
+    // Curve zone borders by X-coordinate.
+    private float[] xBorders = new float[2] 
     { 
         -6f, 6f 
     };
 
-    private float[] yBorders = new float[2] // Curve zone borders by Y-coordinate.
+    // Curve zone borders by Y-coordinate.
+    private float[] yBorders = new float[2] 
     {
         -4f, 4f
     };
@@ -55,102 +65,146 @@ public class CurveGenerator : MonoBehaviour
     private void Start()
     {
         GenerationIsComplete.AddListener(ArrowController.Instance.GetReady);
-        Generate();
+        GenerateAnchors();
+        CreateCurve();
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.G))
         {
-            Generate();
+            GenerateAnchors();
+            CreateCurve();
         }
     }
 
     /// <summary>
-    /// Generate the new curve.
+    /// Generating new random anchors.
     /// </summary>
-    public void Generate()
+    private void GenerateAnchors()
     {
-        anchors.Clear();
-        controlPoints.Clear();
-        for (int i = 0; i < anchorsCount; i++)
+        CleanOldCurve();
+        // Generating new random anchors.
+        for (int index = 0; index < AnchorsCount; index++)
         {
             Vector3 newAnchor = GetRandomVertex();
-            while (anchors.Contains(newAnchor))
+            // Making sure that the coordinates of the anchors are not repeated.
+            while (Anchors.Contains(newAnchor))
             {
                 newAnchor = GetRandomVertex();
             }
-            anchors.Add(newAnchor);
+            Anchors.Add(newAnchor);
         }
+    }
 
+    /// <summary>
+    /// Cleaning data about old anchors and control points.
+    /// </summary>
+    public void CleanOldCurve()
+    {
+        Anchors.Clear();
+        controlPoints.Clear();
+    }
+
+    /// <summary>
+    /// Creating the Bezier curve, and drowing the points on scene.
+    /// </summary>
+    public void CreateCurve()
+    {
         SetControlPoints();
         SmoothOut();
         DrawPoints();
         GenerationIsComplete.Invoke();
     }
 
+    /// <summary>
+    /// Setting up control points for each anchor.
+    /// </summary>
     private void SetControlPoints()
     {
-        for (int i = 0; i < anchorsCount - 2; i++)
+        // Setting up control points for each ahcnor of curve except extreme ahcnors (start and end).
+        for (int index = 0; index < AnchorsCount - 2; index++)
         {
-            SetControlPointsForAnchor(anchors[i], anchors[i + 1], anchors[i + 2]);
+            SetControlPointsForAnchor(Anchors[index], Anchors[index + 1], Anchors[index + 2]);
         }
 
-        SetControlPointsForAnchor(anchors[anchorsCount - 1], anchors[0], anchors[1]);
-        SetControlPointsForAnchor(anchors[anchorsCount - 2], anchors[anchorsCount - 1], anchors[0]);
+        // Setting up control points for extreme ahcnors.
+        SetControlPointsForAnchor(Anchors[AnchorsCount - 1], Anchors[0], Anchors[1]);
+        SetControlPointsForAnchor(Anchors[AnchorsCount - 2], Anchors[AnchorsCount - 1], Anchors[0]);
     }
 
-    private void SetControlPointsForAnchor(Vector3 a, Vector3 b, Vector3 c)
+    /// <summary>
+    /// Setting up control points for anchor2.
+    /// </summary>
+    /// <param name="anchor1"></param>
+    /// <param name="anchor2"></param>
+    /// <param name="anchor3"></param>
+    private void SetControlPointsForAnchor(Vector3 anchor1, Vector3 anchor2, Vector3 anchor3)
     {
-        Vector3 tangent = (c - a) / 3f;
-        controlPoints.Add(b, new List<Vector3>()
+        Vector3 tangent = (anchor3 - anchor1) / 3f;
+        controlPoints.Add(anchor2, new List<Vector3>()
         {
-            b - tangent,
-            b + tangent
+            anchor2 - tangent,
+            anchor2 + tangent
         });
     }
 
+    /// <summary>
+    /// Creating segments of curve with Bezier algorithm.
+    /// </summary>
     private void SmoothOut()
     {
-        lineRenderer.positionCount = (anchorsCount - 1) * 10 + 1;
-        lineRenderer.SetPosition(0, anchors[0]);
+        lineRenderer.positionCount = 1;
+        lineRenderer.SetPosition(0, Anchors[0]);
 
         int index = 1;
-        for (int i = 0; i < anchorsCount - 1; i++)
+        // Creating of segments between two next curve anchors.
+        for (int i = 0; i < AnchorsCount - 1; i++)
         {
-            CreateCurveSevment(anchors[i], anchors[i + 1], ref index);
+            CreateCurveSevment(Anchors[i], Anchors[i + 1], ref index);
         }
 
-        if (loop)
+        // If curve is looping -> creating segmet between start and end ahcnors.
+        if (Loop)
         {
-            lineRenderer.positionCount += 10;
-            CreateCurveSevment(anchors[anchorsCount - 1], anchors[0], ref index);
+            CreateCurveSevment(Anchors[AnchorsCount - 1], Anchors[0], ref index);
         }
     }
 
+    /// <summary>
+    /// Creating a Bezier curve segment between two ahcnors.
+    /// </summary>
+    /// <param name="anchor1"></param>
+    /// <param name="anchor2"></param>
+    /// <param name="index"></param>
     private void CreateCurveSevment(Vector3 anchor1, Vector3 anchor2, ref int index)
     {
-        for (float j = 0.1f; j < 1.1f; j += 0.1f)
+        lineRenderer.positionCount += 10;
+        for (float part = 0.1f; part < 1.1f; part += 0.1f)
         {
             lineRenderer.SetPosition(index,
-                CubicCurve(
+                CubicLerp(
                     anchor1,
                     controlPoints[anchor1][1],
                     controlPoints[anchor2][0],
                     anchor2,
-                    j));
+                    part));
             index++;
         }
     }
 
+    /// <summary>
+    /// Creating anchor points on the scene.
+    /// </summary>
     private void DrawPoints()
     {
+        // Destruction old drawn anchor points (if there are on scene).
         foreach (Transform child in groupOfAnchors)
         {
             Destroy(child.gameObject);
         }
 
-        foreach (Vector3 anchor in anchors)
+        foreach (Vector3 anchor in Anchors)
         {
             Instantiate(
                 anchorPointPrefab,
@@ -161,8 +215,9 @@ public class CurveGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns random vertex of curve in certain area.
+    /// Random vertex in certain area.
     /// </summary>
+    /// <returns>Vector3 with random values: x, y.</returns>
     private Vector3 GetRandomVertex()
     {
         float x = Random.Range(xBorders[0], xBorders[1]);
@@ -170,22 +225,34 @@ public class CurveGenerator : MonoBehaviour
         return new Vector3(x, y);
     }
 
-    private Vector3 Lerp(Vector3 a, Vector3 b, float t)
+    /// <summary>
+    /// Bilinear interpolates between three points.
+    /// </summary>
+    /// <param name="a"></param>
+    /// <param name="b"></param>
+    /// <param name="c"></param>
+    /// <param name="t"></param>
+    /// <returns>Vector3, equals to Lerp(a, b, t) + (Lerp(b, c, t) - Lerp(a, b, t)) * t</returns>
+    private Vector3 QuadraticLerp(Vector3 a, Vector3 b, Vector3 c, float t)
     {
-        return a + (b - a) * t;
+        Vector3 p0 = Vector3.Lerp(a, b, t);
+        Vector3 p1 = Vector3.Lerp(b, c, t);
+        return Vector3.Lerp(p0, p1, t);
     }
 
-    private Vector3 QuadraticCurve(Vector3 a, Vector3 b, Vector3 c, float t)
+    /// <summary>
+    /// Calculate cubic interpolation between four points.
+    /// </summary>
+    /// <param name="a"></param>
+    /// <param name="b"></param>
+    /// <param name="c"></param>
+    /// <param name="d"></param>
+    /// <param name="t"></param>
+    /// <returns>Vector3, equals to QuadraticLerp(a, b, c, t) + (QuadraticLerp(b, c, d, t) - QuadraticLerp(a, b, c, t)) * t</returns>
+    private Vector3 CubicLerp(Vector3 a, Vector3 b, Vector3 c, Vector3 d, float t)
     {
-        Vector3 p0 = Lerp(a, b, t);
-        Vector3 p1 = Lerp(b, c, t);
-        return Lerp(p0, p1, t);
-    }
-
-    private Vector3 CubicCurve(Vector3 a, Vector3 b, Vector3 c, Vector3 d, float t)
-    {
-        Vector3 p0 = QuadraticCurve(a, b, c, t);
-        Vector3 p1 = QuadraticCurve(b, c, d, t);
-        return Lerp(p0, p1, t);
+        Vector3 p0 = QuadraticLerp(a, b, c, t);
+        Vector3 p1 = QuadraticLerp(b, c, d, t);
+        return Vector3.Lerp(p0, p1, t);
     }
 }
