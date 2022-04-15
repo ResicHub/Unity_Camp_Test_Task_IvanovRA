@@ -29,7 +29,7 @@ public class SaveLoadManager : MonoBehaviour
     
     private void Start()
     {
-        LoadingIsComplete.AddListener(CurveGenerator.Instance.CreateCurve);
+        LoadingIsComplete.AddListener(BezierSmoother.Instance.CreateCurve);
     }
 
     /// <summary>
