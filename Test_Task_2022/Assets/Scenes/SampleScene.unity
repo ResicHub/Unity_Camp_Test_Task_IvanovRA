@@ -395,7 +395,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AnchorsCount: 10
   Loop: 0
-  NonCrossingCurve: 1
+  NonCrossingCurve: 0
   Anchors: []
 --- !u!4 &961060708
 Transform:

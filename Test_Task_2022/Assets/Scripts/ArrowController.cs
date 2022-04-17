@@ -53,12 +53,13 @@ public class ArrowController : MonoBehaviour
 
     private void Update()
     {
-        // If Space button was pressed and arrow is not moving now -> arrow starts moving.
+        // If 'Space' button was pressed and arrow is not moving now -> arrow starts moving.
         if (Input.GetKeyDown(KeyCode.S) && !isMoving)
         {
             GetReady();
             isMoving = true;
         }
+        // If 'R' button was pressed -> arrow is setting up to start of curve.
         else if (Input.GetKeyDown(KeyCode.R))
         {
             GetReady();
@@ -146,7 +147,7 @@ public class ArrowController : MonoBehaviour
 
         // While arrow jums over the next point of curve -> move the arrow to next point.
         // Also reduce movingStep by stepToNextPoint.
-        // This is necessary so that the arrow does not go off the trajectory on hte high speed. 
+        // This is necessary so that the arrow does not go off the trajectory on high speed. 
         while (stepToNextPoint < movingStep && isMoving)
         {
             myTransform.position = nextPoint;

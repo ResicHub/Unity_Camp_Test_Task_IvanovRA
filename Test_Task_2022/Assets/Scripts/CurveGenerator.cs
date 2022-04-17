@@ -69,11 +69,13 @@ public class CurveGenerator : MonoBehaviour
 
     private void Update()
     {
+        // If 'G' button was pressed -> generate new curve. 
         if (Input.GetKeyDown(KeyCode.G))
         {
             Generate();
         }
 
+        // If loop parameter has changed -> recreate curve with new loop parameter.
         if (oldLoop != Loop)
         {
             oldLoop = Loop;
@@ -121,30 +123,33 @@ public class CurveGenerator : MonoBehaviour
     /// </summary>
     private void GenerateNonCrossingCurve()
     {
-        if (true)
+        // Needed for restart generating if the generation process is too long.
+        int attempts = 0;
+        // Generate 3 anchors (because they are definitely would not cross).
+        GenerateAnchors(3);
+        for (int index = 0; index < AnchorsCount - 3; index++)
         {
-            GenerateAnchors(3);
-            int attempts = 0;
-            for (int index = 0; index < AnchorsCount - 3; index++)
-            {
-                GenerateAnchors(1);
-                BezierSmoother.Instance.CreateCurve();
+            GenerateAnchors(1);
+            // Creating curve after each new anchor to checking for crossing.
+            BezierSmoother.Instance.CreateCurve();
 
-                if (CheckCurveCrossing())
-                {
-                    Anchors.RemoveAt(Anchors.Count - 1);
-                    index--;
-                    attempts++;
-                }
-                if (attempts > 100)
-                {
-                    break;
-                }
+            // If the curve is crosses itself -> remove last ahcnor and try again.
+            if (CheckCurveCrossing())
+            {
+                Anchors.RemoveAt(Anchors.Count - 1);
+                index--;
+                attempts++;
             }
+            // If generation process is too long -> generation stops.
             if (attempts > 100)
             {
-                Generate();
+                break;
             }
+        }
+        // If generation process is too long -> new generation starts.
+        if (attempts > 100)
+        {
+            Generate();
         }
     }
 
@@ -167,10 +172,14 @@ public class CurveGenerator : MonoBehaviour
         return new Vector3(x, y);
     }
 
+    /// <summary>
+    /// Return true if curve is crosses itself.
+    /// </summary>
     private bool CheckCurveCrossing()
     {
         int segmentsCount = BezierSmoother.Instance.LineRenderer.positionCount - 1;
         curvePositions = BezierSmoother.Instance.GetCurvePositions();
+        // Check each segment in pairs for crossing.
         for (int i = 1; i < segmentsCount - 2; i++)
         {
             for (int j = i + 2; j < segmentsCount + 1; j++)
