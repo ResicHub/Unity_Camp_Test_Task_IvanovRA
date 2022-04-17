@@ -24,7 +24,7 @@ public class ArrowController : MonoBehaviour
     /// Arrow's movement speed.
     /// </summary>
     [SerializeField]
-    [Range(1f, 10f)]
+    [Range(1f, 20f)]
     public float MovementSpeed = 1f;
 
     // That parameter helps updating PassageTime in real time when movement speed has changed.
@@ -141,25 +141,24 @@ public class ArrowController : MonoBehaviour
     /// </summary>
     private void Move()
     {
-        Vector3 movingStep = myTransform.right * Time.deltaTime * MovementSpeed;
-        Vector3 stepToNextPoint = nextPoint - myTransform.position;
+        float movingStep = Time.deltaTime * MovementSpeed;
+        float stepToNextPoint = (nextPoint - myTransform.position).magnitude;
 
-        // If the arrow not jups over the next point of curve -> simply moving the arrow.
-        if (stepToNextPoint.magnitude > movingStep.magnitude)
+        // While arrow jums over the next point of curve -> move the arrow to next point.
+        // Also reduce movingStep by stepToNextPoint.
+        // This is necessary so that the arrow does not go off the trajectory on hte high speed. 
+        while (stepToNextPoint < movingStep && isMoving)
         {
-            myTransform.position += movingStep;
+            myTransform.position = nextPoint;
+            ResetNextPoint();
+            movingStep -= stepToNextPoint;
+            stepToNextPoint = (nextPoint - myTransform.position).magnitude;
         }
-        // Else -> moving arrow to next point, setting new next point and move the rest of the step.
-        else
-        {
-            myTransform.position += stepToNextPoint;
 
-            // That command will stop arrow's moving if achived point is the ening.
-            ResetNextPoint(); 
-            if (isMoving)
-            {
-                myTransform.position += myTransform.right * (movingStep - stepToNextPoint).magnitude;
-            }
+        // If the arrow is not stopped -> simply moving the arrow.
+        if (isMoving)
+        {
+            myTransform.position += myTransform.right * movingStep;
         }
     }
 

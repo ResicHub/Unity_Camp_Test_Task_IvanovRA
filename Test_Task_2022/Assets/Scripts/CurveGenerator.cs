@@ -21,6 +21,8 @@ public class CurveGenerator : MonoBehaviour
     [SerializeField]
     public bool Loop;
 
+    private bool oldLoop;
+
     /// <summary>
     /// If True - generator will create a curve that does not cross itself.
     /// </summary>
@@ -37,7 +39,7 @@ public class CurveGenerator : MonoBehaviour
     /// </summary>
     private List<Vector3> curvePositions;
 
-    private int agins = 0;
+    private int agains = 0;
 
     // Curve zone borders by X-coordinate.
     private float[] xBorders = new float[2] 
@@ -61,6 +63,7 @@ public class CurveGenerator : MonoBehaviour
 
     private void Start()
     {
+        oldLoop = Loop;
         Generate();
     }
 
@@ -70,6 +73,12 @@ public class CurveGenerator : MonoBehaviour
         {
             Generate();
         }
+
+        if (oldLoop != Loop)
+        {
+            oldLoop = Loop;
+            BezierSmoother.Instance.CreateCurve();
+        }
     }
 
     /// <summary>
@@ -77,13 +86,6 @@ public class CurveGenerator : MonoBehaviour
     /// </summary>
     private void Generate()
     {
-        agins++;
-        if (agins > 100)
-        {
-            Debug.Log("Agains end");
-            return;
-        }
-
         CleanOldCurve();
         if (NonCrossingCurve)
         {
@@ -94,7 +96,6 @@ public class CurveGenerator : MonoBehaviour
             GenerateAnchors(AnchorsCount);
         }
         BezierSmoother.Instance.CreateCurve();
-        agins = 0;
     }
 
     /// <summary>
@@ -120,10 +121,10 @@ public class CurveGenerator : MonoBehaviour
     /// </summary>
     private void GenerateNonCrossingCurve()
     {
-        if (!Loop)
+        if (true)
         {
             GenerateAnchors(3);
-            int indexMinus = 0;
+            int attempts = 0;
             for (int index = 0; index < AnchorsCount - 3; index++)
             {
                 GenerateAnchors(1);
@@ -133,16 +134,15 @@ public class CurveGenerator : MonoBehaviour
                 {
                     Anchors.RemoveAt(Anchors.Count - 1);
                     index--;
-                    indexMinus++;
+                    attempts++;
                 }
-                if (indexMinus > 100)
+                if (attempts > 100)
                 {
                     break;
                 }
             }
-            if (indexMinus > 100)
+            if (attempts > 100)
             {
-                Debug.Log("Again");
                 Generate();
             }
         }
@@ -171,9 +171,9 @@ public class CurveGenerator : MonoBehaviour
     {
         int segmentsCount = BezierSmoother.Instance.LineRenderer.positionCount - 1;
         curvePositions = BezierSmoother.Instance.GetCurvePositions();
-        for (int i = 1; i < segmentsCount-2; i++)
+        for (int i = 1; i < segmentsCount - 2; i++)
         {
-            for (int j = i+2; j < segmentsCount; j++)
+            for (int j = i + 2; j < segmentsCount + 1; j++)
             {
                 if (CheckVectorsCrossing(
                     curvePositions[i - 1], curvePositions[i], 
