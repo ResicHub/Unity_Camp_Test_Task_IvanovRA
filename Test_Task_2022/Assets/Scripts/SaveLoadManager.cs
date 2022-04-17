@@ -24,12 +24,19 @@ public class SaveLoadManager : MonoBehaviour
             Instance = this;
         }
 
-        filePath = Application.dataPath + "/data.json";
+        filePath = Application.persistentDataPath + "/data.json";
+
+        LoadingIsComplete.AddListener(UIManager.Instance.OnLoadHasDone);
+        LoadingIsComplete.AddListener(BezierSmoother.Instance.CreateCurve);
     }
     
     private void Start()
     {
+<<<<<<< Updated upstream
         LoadingIsComplete.AddListener(BezierSmoother.Instance.CreateCurve);
+=======
+        Load();
+>>>>>>> Stashed changes
     }
 
     /// <summary>
