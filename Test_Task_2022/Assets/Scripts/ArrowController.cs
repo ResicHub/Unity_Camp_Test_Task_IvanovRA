@@ -13,7 +13,7 @@ public class ArrowController : MonoBehaviour
     private Transform myTransform;
 
     /// <summary>
-    /// Renderer of path line.
+    /// Renderer of curve.
     /// </summary>
     [SerializeField]
     private LineRenderer lineRenderer;
@@ -98,7 +98,7 @@ public class ArrowController : MonoBehaviour
     }
 
     /// <summary>
-    /// Rotating the arrow to next point of curve.
+    /// Turns the arrow to next point of curve.
     /// </summary>
     /// <param name="pointIndex"></param>
     private void RotateTo(int pointIndex) 
@@ -109,7 +109,7 @@ public class ArrowController : MonoBehaviour
     }
 
     /// <summary>
-    /// Setting next point of curve.
+    /// Sets next point of curve.
     /// </summary>
     private void ResetNextPoint()
     {
@@ -164,7 +164,7 @@ public class ArrowController : MonoBehaviour
     }
 
     /// <summary>
-    /// Calculating the passage time with present movement speed.
+    /// Calculates the passage time with present movement speed.
     /// </summary>
     private void CalculatePassageTime()
     {

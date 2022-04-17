@@ -33,7 +33,7 @@ public class SaveLoadManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Creating config file with curve data and saving it on device.
+    /// Creates config file with curve data and saving it on device.
     /// </summary>
     [ContextMenu("Saving data")]
     public void Save()
@@ -69,7 +69,7 @@ public class SaveLoadManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Loading data from config file and creating curve.
+    /// Loads data from config file and creating curve.
     /// </summary>
     [ContextMenu("Loading data")]
     public void Load()

@@ -264,7 +264,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe2cae51376d0c847af8c2f9d41a6c49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lineRenderer: {fileID: 1698529993}
+  LineRenderer: {fileID: 1698529993}
   anchorPointPrefab: {fileID: 718499527117891377, guid: 97871e72abe8d1745b784c10df59bf11, type: 3}
   groupOfAnchors: {fileID: 1446329713}
 --- !u!4 &297450381
@@ -393,8 +393,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51889ea6faab8bb4bb532dd33329359f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AnchorsCount: 5
+  AnchorsCount: 10
   Loop: 0
+  NonCrossingCurve: 1
   Anchors: []
 --- !u!4 &961060708
 Transform:

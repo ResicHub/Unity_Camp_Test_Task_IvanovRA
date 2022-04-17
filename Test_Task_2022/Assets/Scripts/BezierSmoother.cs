@@ -12,8 +12,11 @@ public class BezierSmoother : MonoBehaviour
     /// </summary>
     public static BezierSmoother Instance;
 
+    /// <summary>
+    /// Renders the curve.
+    /// </summary>
     [SerializeField]
-    private LineRenderer lineRenderer;
+    public LineRenderer LineRenderer;
 
     [SerializeField]
     private GameObject anchorPointPrefab;
@@ -53,11 +56,11 @@ public class BezierSmoother : MonoBehaviour
     }
 
     /// <summary>
-    /// Creating the Bezier curve, and drowing the points on scene.
+    /// Creates the Bezier curve, and drowing the points on scene.
     /// </summary>
     public void CreateCurve()
     {
-        anchorsCount = CurveGenerator.Instance.AnchorsCount;
+        anchorsCount = CurveGenerator.Instance.Anchors.Count;
         loop = CurveGenerator.Instance.Loop;
         anchors = CurveGenerator.Instance.Anchors;
 
@@ -68,7 +71,7 @@ public class BezierSmoother : MonoBehaviour
     }
 
     /// <summary>
-    /// Setting up control points for each anchor.
+    /// Sets up control points for each anchor.
     /// </summary>
     private void SetControlPoints()
     {
@@ -85,7 +88,7 @@ public class BezierSmoother : MonoBehaviour
     }
 
     /// <summary>
-    /// Setting up control points for anchor2.
+    /// Sets up control points for anchor2.
     /// </summary>
     /// <param name="anchor1"></param>
     /// <param name="anchor2"></param>
@@ -101,12 +104,12 @@ public class BezierSmoother : MonoBehaviour
     }
 
     /// <summary>
-    /// Creating segments of curve with Bezier algorithm.
+    /// Creates segments of curve with Bezier algorithm.
     /// </summary>
     private void SmoothOut()
     {
-        lineRenderer.positionCount = 1;
-        lineRenderer.SetPosition(0, anchors[0]);
+        LineRenderer.positionCount = 1;
+        LineRenderer.SetPosition(0, anchors[0]);
 
         int index = 1;
         // Creating of segments between two next curve anchors.
@@ -123,17 +126,17 @@ public class BezierSmoother : MonoBehaviour
     }
 
     /// <summary>
-    /// Creating a Bezier curve segment between two ahcnors.
+    /// Creates a Bezier curve segment between two ahcnors.
     /// </summary>
     /// <param name="anchor1"></param>
     /// <param name="anchor2"></param>
     /// <param name="index"></param>
     private void CreateCurveSevment(Vector3 anchor1, Vector3 anchor2, ref int index)
     {
-        lineRenderer.positionCount += 10;
+        LineRenderer.positionCount += 10;
         for (float part = 0.1f; part < 1.1f; part += 0.1f)
         {
-            lineRenderer.SetPosition(index,
+            LineRenderer.SetPosition(index,
                 CubicLerp(
                     anchor1,
                     controlPoints[anchor1][1],
@@ -145,7 +148,20 @@ public class BezierSmoother : MonoBehaviour
     }
 
     /// <summary>
-    /// Creating anchor points on the scene.
+    /// Returns list of all LineRenderer positions.
+    /// </summary>
+    public List<Vector3> GetCurvePositions()
+    {
+        List<Vector3> positions = new List<Vector3>();
+        for (int index = 0; index < LineRenderer.positionCount; index++)
+        {
+            positions.Add(LineRenderer.GetPosition(index));
+        }
+        return positions;
+    }
+
+    /// <summary>
+    /// Creates anchor points on the scene.
     /// </summary>
     private void DrawPoints()
     {
@@ -181,7 +197,7 @@ public class BezierSmoother : MonoBehaviour
     }
 
     /// <summary>
-    /// Calculate cubic interpolation between four points.
+    /// Calculates cubic interpolation between four points.
     /// </summary>
     /// <param name="a"></param>
     /// <param name="b"></param>
