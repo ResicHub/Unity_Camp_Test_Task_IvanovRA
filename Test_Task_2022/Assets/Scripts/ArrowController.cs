@@ -12,9 +12,6 @@ public class ArrowController : MonoBehaviour
 
     private Transform myTransform;
 
-    /// <summary>
-    /// Renderer of curve.
-    /// </summary>
     [SerializeField]
     private LineRenderer lineRenderer;
 
@@ -23,17 +20,11 @@ public class ArrowController : MonoBehaviour
     /// <summary>
     /// Arrow's movement speed.
     /// </summary>
-    [SerializeField]
-    [Range(1f, 20f)]
     public float MovementSpeed = 1f;
-
-    // That parameter helps updating PassageTime in real time when movement speed has changed.
-    private float oldMovementSpeed;
 
     /// <summary>
     /// The time it takes for the arrow to pass the entire path with certain movement speed.
     /// </summary>
-    [SerializeField]
     public float PassageTime = 0f;
 
     private int nextPointIndex;
@@ -46,31 +37,7 @@ public class ArrowController : MonoBehaviour
         {
             Instance = this;
         }
-
         myTransform = GetComponent<Transform>();
-        oldMovementSpeed = MovementSpeed;
-    }
-
-    private void Update()
-    {
-        // If 'Space' button was pressed and arrow is not moving now -> arrow starts moving.
-        if (Input.GetKeyDown(KeyCode.S) && !isMoving)
-        {
-            GetReady();
-            isMoving = true;
-        }
-        // If 'R' button was pressed -> arrow is setting up to start of curve.
-        else if (Input.GetKeyDown(KeyCode.R))
-        {
-            GetReady();
-        }
-
-        // If movement speed has changed -> calculating new PassageTime.
-        if (oldMovementSpeed != MovementSpeed)
-        {
-            oldMovementSpeed = MovementSpeed;
-            CalculatePassageTime();
-        }
     }
 
     private void FixedUpdate()
@@ -82,7 +49,16 @@ public class ArrowController : MonoBehaviour
     }
 
     /// <summary>
-    /// A method for setting the arrow to the start of the path.
+    /// Starts the arrow.
+    /// </summary>
+    public void StartMoving()
+    {
+        GetReady();
+        isMoving = true;
+    }
+
+    /// <summary>
+    /// Sets up the arrow to the start of the curve.
     /// </summary>
     public void GetReady()
     {
@@ -137,9 +113,6 @@ public class ArrowController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Main arrow's method with moving logic.
-    /// </summary>
     private void Move()
     {
         float movingStep = Time.deltaTime * MovementSpeed;
@@ -166,7 +139,7 @@ public class ArrowController : MonoBehaviour
     /// <summary>
     /// Calculates the passage time with present movement speed.
     /// </summary>
-    private void CalculatePassageTime()
+    public void CalculatePassageTime()
     {
         float pTime = 0f;
         // Calculate the sum of each curve segment.
@@ -178,5 +151,7 @@ public class ArrowController : MonoBehaviour
         }
 
         PassageTime = pTime / MovementSpeed;
+
+        UIManager.Instance.PassageTimeHasCHanged();
     }
 }

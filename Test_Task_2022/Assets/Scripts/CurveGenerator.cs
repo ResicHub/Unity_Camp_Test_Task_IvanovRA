@@ -11,22 +11,19 @@ public class CurveGenerator : MonoBehaviour
     /// </summary>
     public static CurveGenerator Instance;
 
-    [SerializeField]
-    [Range(3, 10)]
-    public int AnchorsCount = 5;
+    /// <summary>
+    /// Cureve anchor points count.
+    /// </summary>
+    public int AnchorsCount;
 
     /// <summary>
     /// Looping of curve.
     /// </summary>
-    [SerializeField]
     public bool Loop;
-
-    private bool oldLoop;
 
     /// <summary>
     /// If True - generator will create a curve that does not cross itself.
     /// </summary>
-    [SerializeField]
     public bool NonCrossingCurve;
 
     /// <summary>
@@ -34,23 +31,22 @@ public class CurveGenerator : MonoBehaviour
     /// </summary>
     public List<Vector3> Anchors = new List<Vector3>();
 
-    /// <summary>
-    /// All positions of Bezier curve.
-    /// </summary>
     private List<Vector3> curvePositions;
 
-    private int agains = 0;
-
-    // Curve zone borders by X-coordinate.
+    /// <summary>
+    /// Curve zone borders by X-coordinate.
+    /// </summary>
     private float[] xBorders = new float[2] 
     { 
-        -6f, 6f 
+        -3.5f, 7.5f 
     };
 
-    // Curve zone borders by Y-coordinate.
+    /// <summary>
+    /// Curve zone borders by Y-coordinate.
+    /// </summary>
     private float[] yBorders = new float[2] 
     {
-        -4f, 4f
+        -4f, 3f
     };
 
     private void Awake()
@@ -61,32 +57,10 @@ public class CurveGenerator : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        oldLoop = Loop;
-        Generate();
-    }
-
-    private void Update()
-    {
-        // If 'G' button was pressed -> generate new curve. 
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            Generate();
-        }
-
-        // If loop parameter has changed -> recreate curve with new loop parameter.
-        if (oldLoop != Loop)
-        {
-            oldLoop = Loop;
-            BezierSmoother.Instance.CreateCurve();
-        }
-    }
-
     /// <summary>
     /// Generates new curve with certain parameters.
     /// </summary>
-    private void Generate()
+    public void Generate()
     {
         CleanOldCurve();
         if (NonCrossingCurve)
@@ -118,9 +92,6 @@ public class CurveGenerator : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Generates new non crossing curve.
-    /// </summary>
     private void GenerateNonCrossingCurve()
     {
         // Needed for restart generating if the generation process is too long.
@@ -161,10 +132,6 @@ public class CurveGenerator : MonoBehaviour
         Anchors.Clear();
     }
 
-    /// <summary>
-    /// Random vertex in certain area.
-    /// </summary>
-    /// <returns>Vector3 with random values: x, y.</returns>
     private Vector3 GetRandomVertex()
     {
         float x = Random.Range(xBorders[0], xBorders[1]);

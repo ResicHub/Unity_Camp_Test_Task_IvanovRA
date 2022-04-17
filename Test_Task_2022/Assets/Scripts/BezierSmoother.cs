@@ -13,7 +13,7 @@ public class BezierSmoother : MonoBehaviour
     public static BezierSmoother Instance;
 
     /// <summary>
-    /// Renders the curve.
+    /// Renders the curve line.
     /// </summary>
     [SerializeField]
     public LineRenderer LineRenderer;
@@ -24,20 +24,16 @@ public class BezierSmoother : MonoBehaviour
     [SerializeField]
     private Transform groupOfAnchors;
 
-    // Needed for crearing Bezier curve.
+    /// <summary>
+    /// Used for crearing Bezier curve.
+    /// </summary>
     private Dictionary<Vector3, List<Vector3>> controlPoints =
         new Dictionary<Vector3, List<Vector3>>();
 
     private int anchorsCount;
 
-    /// <summary>
-    /// Looping of curve.
-    /// </summary>
     private bool loop;
 
-    /// <summary>
-    /// Anchor points of curve.
-    /// </summary>
     private List<Vector3> anchors;
 
     private UnityEvent GenerationIsComplete = new UnityEvent();
@@ -48,10 +44,6 @@ public class BezierSmoother : MonoBehaviour
         {
             Instance = this;
         }
-    }
-
-    private void Start()
-    {
         GenerationIsComplete.AddListener(ArrowController.Instance.GetReady);
     }
 
@@ -87,12 +79,6 @@ public class BezierSmoother : MonoBehaviour
         SetControlPointsForAnchor(anchors[anchorsCount - 2], anchors[anchorsCount - 1], anchors[0]);
     }
 
-    /// <summary>
-    /// Sets up control points for anchor2.
-    /// </summary>
-    /// <param name="anchor1"></param>
-    /// <param name="anchor2"></param>
-    /// <param name="anchor3"></param>
     private void SetControlPointsForAnchor(Vector3 anchor1, Vector3 anchor2, Vector3 anchor3)
     {
         Vector3 tangent = (anchor3 - anchor1) / 3f;
@@ -160,9 +146,6 @@ public class BezierSmoother : MonoBehaviour
         return positions;
     }
 
-    /// <summary>
-    /// Creates anchor points on the scene.
-    /// </summary>
     private void DrawPoints()
     {
         // Destruction old drawn anchor points (if there are on scene).
