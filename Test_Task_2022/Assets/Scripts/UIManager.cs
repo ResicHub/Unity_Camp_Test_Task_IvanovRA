@@ -34,6 +34,9 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI arrowPassageTimeValue;
 
+    [SerializeField]
+    private TextMeshProUGUI hotkeysText;
+
     private void Awake()
     {
         if (Instance == null)
@@ -44,6 +47,61 @@ public class UIManager : MonoBehaviour
         sldAnchorCount.onValueChanged.AddListener(OnAnchorCountValueChanged);
         tglLoop.onValueChanged.AddListener(OnLoopToggleChanged);
         sldArrowSpeed.onValueChanged.AddListener(OnArrowSpeedValueChanged);
+    }
+
+    private void Update()
+    {
+        if (Input.anyKeyDown)
+        {
+            InputHandler();
+        }
+    }
+
+    /// <summary>
+    /// Checks pressed buttons.
+    /// </summary>
+    private void InputHandler()
+    {
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            OnButtonGenerateClick();
+        }
+        else if (Input.GetKeyDown(KeyCode.A))
+        {
+            OnButtonStartClick();
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            OnButtonSaveClick();
+        }
+        else if (Input.GetKeyDown(KeyCode.L))
+        {
+            OnButtonLoadClick();
+        }
+        else if (Input.GetKeyDown(KeyCode.H))
+        {
+            OnButtonHotKeysClick();
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            OnButtonQuitClick();
+        }
+    }
+
+    /// <summary>
+    /// On/Off the hotkeys tooltip.
+    /// </summary>
+    public void OnButtonHotKeysClick()
+    {
+        hotkeysText.enabled = !hotkeysText.enabled;
+    }
+
+    /// <summary>
+    /// Quits the application.
+    /// </summary>
+    public void OnButtonQuitClick()
+    {
+        Application.Quit();
     }
 
     /// <summary>
