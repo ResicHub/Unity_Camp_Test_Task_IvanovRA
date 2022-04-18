@@ -29,13 +29,14 @@ public class SaveLoadManager : MonoBehaviour
     
     private void Start()
     {
+        LoadingIsComplete.AddListener(UIManager.Instance.OnLoadHasDone);
         LoadingIsComplete.AddListener(BezierSmoother.Instance.CreateCurve);
+        Load();
     }
 
     /// <summary>
     /// Creates config file with curve data and saving it on device.
     /// </summary>
-    [ContextMenu("Saving data")]
     public void Save()
     {
         ConfigFileStruct configFile = new ConfigFileStruct()
