@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +13,8 @@ public class UIManager : MonoBehaviour
     /// An object instance implemented with a singleton.
     /// </summary>
     public static UIManager Instance;
+
+    private Color TextColor = new Color(0, 231, 255);
 
     [SerializeField]
     private Slider sldAnchorCount;
@@ -36,6 +39,9 @@ public class UIManager : MonoBehaviour
 
     [SerializeField]
     private TextMeshProUGUI hotkeysText;
+
+    [SerializeField]
+    private TextMeshProUGUI messageText;
 
     private void Awake()
     {
@@ -86,6 +92,35 @@ public class UIManager : MonoBehaviour
         {
             OnButtonQuitClick();
         }
+    }
+
+    /// <summary>
+    /// Writes the message on scene.
+    /// </summary>
+    /// <param name="message"></param>
+    public void WriteMessage(string message, bool isError = false)
+    {
+        messageText.text = message;
+        StartCoroutine(DeleteMessageAfterTime());
+        if (!isError) 
+        {
+            if (Equals(messageText.color, Color.red))
+            {
+                messageText.color = TextColor;
+            }
+            return;
+        }
+        messageText.color = Color.red;
+    }
+
+    /// <summary>
+    /// Deletes messages after 10 seconds.
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator DeleteMessageAfterTime()
+    {
+        yield return new WaitForSeconds(10);
+        messageText.text = "";
     }
 
     /// <summary>

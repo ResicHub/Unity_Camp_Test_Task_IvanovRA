@@ -24,7 +24,7 @@ public class SaveLoadManager : MonoBehaviour
             Instance = this;
         }
 
-        filePath = Application.dataPath + "/data.json";
+        filePath = Application.persistentDataPath + "/data.json";
     }
     
     private void Start()
@@ -61,23 +61,26 @@ public class SaveLoadManager : MonoBehaviour
         try
         {
             File.WriteAllText(filePath, json);
-            Debug.Log("Data saving completed successfully.");
+            UIManager.Instance.WriteMessage("Data saving completed successfully.");
         }
         catch
         {
-            Debug.LogError("Data saving failed.");
+            UIManager.Instance.WriteMessage("Data saving failed", true);
         }
     }
 
     /// <summary>
     /// Loads data from config file and creating curve.
     /// </summary>
-    [ContextMenu("Loading data")]
     public void Load()
     {
         if (!File.Exists(filePath))
         {
-            Debug.LogError("Data loading failed. Configuration file does not exist.");
+            ArrowController.Instance.MovementSpeed = 5f;
+            CurveGenerator.Instance.Loop = true;
+            CurveGenerator.Instance.AnchorsCount = 10;
+            CurveGenerator.Instance.Generate();
+            UIManager.Instance.WriteMessage("Cant't find config file, so generation of new curve has launched.", true);
             return;
         }
 
@@ -98,7 +101,7 @@ public class SaveLoadManager : MonoBehaviour
         ArrowController.Instance.PassageTime = configFileFromJson.PassageTime;
 
         LoadingIsComplete.Invoke();
-        Debug.Log("Data loading completed successfully.");
+        UIManager.Instance.WriteMessage("Data loading completed successfully.");
     }
 }
 
